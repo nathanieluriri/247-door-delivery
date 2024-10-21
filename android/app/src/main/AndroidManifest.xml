@@ -3,6 +3,9 @@
         android:label="_247_door_delivery"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+
+        <meta-data android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyA9FRtWRMkKRmOTOO37iOec5QSXMk-D1WU"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"

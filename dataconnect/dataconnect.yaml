@@ -1,0 +1,12 @@
+specVersion: "v1beta"
+serviceId: "_247_door_delivery"
+location: "us-central1"
+schema:
+  source: "./schema"
+  datasource:
+    postgresql:
+      database: "fdcdb"
+      cloudSql:
+        instanceId: "_247_door_delivery-fdc"
+      # schemaValidation: "COMPATIBLE"
+connectorDirs: ["./connector"]

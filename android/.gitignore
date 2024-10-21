@@ -5,6 +5,8 @@ gradle-wrapper.jar
 /gradlew.bat
 /local.properties
 GeneratedPluginRegistrant.java
+../assets/Menu_button_click.riv
+../assets/yasuke_background.riv
 
 # Remember to never publicly share your keystore.
 # See https://flutter.dev/to/reference-keystore
