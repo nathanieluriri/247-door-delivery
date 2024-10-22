@@ -9,11 +9,12 @@ class ScheduleNowButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
     return ElevatedButton(
       onPressed: active ? onPressed : null,
       style: ElevatedButton.styleFrom(
         backgroundColor: active ? Colors.red.withOpacity(0.6) : Colors.grey,
-        minimumSize: const Size(200, 50), // Width and height
+        minimumSize: (screenWidth < 576)? Size(100, 50):Size(200, 50), // Width and height
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8), // Rounded corners

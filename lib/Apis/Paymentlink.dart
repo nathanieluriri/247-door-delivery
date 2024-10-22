@@ -11,7 +11,7 @@ Future<String?> createPaymentLink(double distance, int price, String currency,St
   dropoffdate = Uri.encodeComponent(dropoffdate);
   dropOffTime = Uri.encodeComponent(dropOffTime);
   currency = Uri.encodeComponent(currency);
-  final url = Uri.parse("https://distanceapi-i86r19cj.b4a.run/create-payment-link?distance=$distance&unitAmount=$price&currency=$currency&origin=$origin&destination=$destination&pickupDate=$pickupdate&pickupTime=$pickupTime&dropoffDate=$dropoffdate&dropoffTime=$dropOffTime");
+  final url = Uri.parse("https://api.247doordelivery.co.uk/create-payment-link?distance=$distance&unitAmount=$price&currency=$currency&origin=$origin&destination=$destination&pickupDate=$pickupdate&pickupTime=$pickupTime&dropoffDate=$dropoffdate&dropoffTime=$dropOffTime");
 
   // No need to add body for the curl request (since we send data as query parameters)
   final headers = {

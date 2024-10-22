@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:_247_door_delivery/Apis/Distancecalculator.dart';
 import 'package:_247_door_delivery/Db/Db.dart';
 import 'package:_247_door_delivery/widgets/Timepickerwidget.dart';
@@ -11,6 +13,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../Apis/Paymentlink.dart';
 import '../widgets/Datepickerwidget.dart';
 import '../widgets/Paynowbutton.dart';
+import '../widgets/Picture Uploader widget.dart';
 
 class FinalDetails extends StatefulWidget {
   const FinalDetails({super.key});
@@ -24,12 +27,16 @@ class _FinalDetailsState extends State<FinalDetails> {
   final TextEditingController _DropoffdateController = TextEditingController();
   final TextEditingController _PickupTimeController = TextEditingController();
   final TextEditingController _DropoffTimeController = TextEditingController();
+  final TextEditingController photoController = TextEditingController();
   bool active = false;
   var pickupbox = Hive.box("PickupDetails");
   var dropoffbox = Hive.box("DropoffDetails");
   var customerinfobox = Hive.box('CustomerInfo');
   final FirebaseDb db = FirebaseDb();
   double? Distance;
+  bool? shouldRedirect;
+  Timer? _timerforfinalPage;
+
 
   bool isDateALessThanB(String dateA, String dateB) {
     bool result = false;
@@ -52,12 +59,37 @@ class _FinalDetailsState extends State<FinalDetails> {
     }
     return result;
   }
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    _timerforfinalPage?.cancel();
+    super.dispose();
+  }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    _timerforfinalPage = Timer(const Duration(milliseconds: 500), (){
+      dynamic box4 = Hive.box("CameraDetails");
+      if (box4.get("shouldRedirect") ==true) {
+        setState(() {
+
+          shouldRedirect = box4.get("shouldRedirect");
+          print("new shouldRedirect = $shouldRedirect");
+        });
+      }
+
+      else{
+        setState(() {
+
+        });
+      }
+
+    });
+
     setDistance();
+
     _PickupdateController.addListener(() {
       setState(() {});
     });
@@ -71,10 +103,19 @@ class _FinalDetailsState extends State<FinalDetails> {
     _DropoffTimeController.addListener(() {
       setState(() {});
     });
+    photoController.addListener((){
+      setState(() {
+        dynamic box4 = Hive.box("CameraDetails");
+        setActive();
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+
+
+
     setActive();
     return MaterialApp(
       home: Scaffold(
@@ -88,7 +129,7 @@ class _FinalDetailsState extends State<FinalDetails> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              icon: Icon(Icons.arrow_back)),
+              icon: const Icon(Icons.arrow_back)),
         ),
         body: Center(
           child: ConstrainedBox(
@@ -96,6 +137,20 @@ class _FinalDetailsState extends State<FinalDetails> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                 PictureUploader(
+                   clearF: (){
+                     dynamic cbox = Hive.box("CameraDetails");
+                     setState(() {
+                       shouldRedirect = cbox.get("shouldRedirect");
+                     });
+                     _PickupdateController.clear();
+                     _DropoffTimeController.clear();
+                     _PickupTimeController.clear();
+                     _DropoffdateController.clear();
+                   },
+
+                  hint: "Take A Picture Of The Package", photocontroller: photoController,
+                ),
                 DateWidget(
                   hint: 'Select a Pickup Date',
                   dateTimeController: _PickupdateController,
@@ -158,15 +213,19 @@ class _FinalDetailsState extends State<FinalDetails> {
                           'dropOffTime': _DropoffTimeController.text,
                           'dropOffDate': _DropoffdateController.text,
                         };
+                        var cbox = Hive.box("CameraDetails");
                         db.addUser(
                             name: name.toLowerCase(),
                             phoneNumber: phoneNumber,
                             email: email.toLowerCase(),
                             pickUpDetails: pickUpDetails,
                             dropOffDetails: dropOffDetails,
-                            schedule: schedule);
+                            schedule: schedule,
+                            imageid: cbox.get("ImageId")
+                        );
 
                         await LaunchUrl(distance: Distance);
+
                       },
                       active: active,
                     ),
@@ -230,10 +289,12 @@ class _FinalDetailsState extends State<FinalDetails> {
   }
 
   void setActive() {
+    print("shouldRedirect $shouldRedirect");
     if ((_PickupTimeController.text.isNotEmpty) &&
         (_PickupdateController.text.isNotEmpty) &&
         (_DropoffdateController.text.isNotEmpty) &&
-        (_DropoffTimeController.text.isNotEmpty)) {
+        (_DropoffTimeController.text.isNotEmpty) &&
+        (shouldRedirect ==true))  {
       setState(() {
         active = true;
       });

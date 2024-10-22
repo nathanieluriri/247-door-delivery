@@ -11,7 +11,7 @@ Future<double?> getDistance({
   int maxRetries = 5,  // Maximum retries
 }) async {
   final url = Uri.parse(
-      'https://distanceapi-i86r19cj.b4a.run/get_distance/?origin_place_id=$originPlaceId&destination_place_id=$destinationPlaceId');
+      'https://api.247doordelivery.co.uk/get_distance/?origin_place_id=$originPlaceId&destination_place_id=$destinationPlaceId');
 
   try {
     final response = await http.get(url);

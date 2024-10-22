@@ -8,11 +8,12 @@ class PayNowButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
     return ElevatedButton(
       onPressed: active? onPressed: null,
       style: ElevatedButton.styleFrom(
         backgroundColor:active? Colors.blue[300]: Colors.grey, // Stripe-like blue color
-        minimumSize: Size(200, 50), // Width and height
+        minimumSize: (screenWidth < 576)? Size(150, 50):Size(200, 50), // Width and height
         elevation: 2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8), // Rounded corners

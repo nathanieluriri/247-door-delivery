@@ -10,6 +10,7 @@ class FirebaseDb{
 // Updated function to accept Map for details
   Future<void> addUser({
     required String name,
+    required String imageid,
     required String phoneNumber,
     required String email,
     required Map<String, dynamic> pickUpDetails,
@@ -17,8 +18,8 @@ class FirebaseDb{
     required Map<String, dynamic> schedule,
   }) async {
     // Define the URL for the FastAPI add_user endpoint
-    final url = Uri.parse('https://distanceapi-i86r19cj.b4a.run/add_user/');
-
+    final url = Uri.parse('https://api.247doordelivery.co.uk/add_user/');
+int image_id = int.parse(imageid);
     // Create the user data to be sent in the request body
     final userData = {
       "name": name,
@@ -26,7 +27,8 @@ class FirebaseDb{
       "email": email,
       "pick_up_details": pickUpDetails,  // Use Map directly
       "drop_off_details": dropOffDetails, // Use Map directly
-      "schedule": schedule,                // Use Map directly
+      "schedule": schedule, // Use Map directly
+      "image_id": image_id
     };
 
     try {
