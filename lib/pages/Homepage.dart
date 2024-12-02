@@ -24,21 +24,7 @@ class _HomePageUiState extends State<HomePageUi> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (box.get("isChecked") != null) {
-        if (box.get("isChecked")) {
-          if ((box.get("name").toString().length >= 4) &&
-              (box.get("phoneNumber").toString().isNotEmpty) &&
-              (box.get("name").toString().isNotEmpty) &&
-              (box.get("email").toString().isNotEmpty)) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => PickupLocationScreen()),
-            );
-          }
-        }
-      }
-    });
+
     nameController.addListener(() {
       box.put("name", nameController.text.toLowerCase());
 
@@ -61,33 +47,37 @@ class _HomePageUiState extends State<HomePageUi> {
     setActive();
     double screenWidth = MediaQuery.of(context).size.width;
 
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              CheckBoxLayout(
-                screenWidth: screenWidth,
-                onchanged: () {
-                  box.put("isChecked", true);
-                  Map<String, String> CustomerData = {
-                    'name': nameController.text,
-                    'phoneNumber': phoneNumberController.text,
-                    'email': emailAddressController.text
-                  };
-                  box.putAll(CustomerData);
-                },
-                nameController: nameController,
-                phoneNumberController: phoneNumberController,
-                emailController: emailAddressController,
+    return MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  CheckBoxLayout(
+                    screenWidth: screenWidth,
+                    onchanged: () {
+                      box.put("isChecked", true);
+                      Map<String, String> CustomerData = {
+                        'name': nameController.text,
+                        'phoneNumber': phoneNumberController.text,
+                        'email': emailAddressController.text
+                      };
+                      box.putAll(CustomerData);
+                    },
+                    nameController: nameController,
+                    phoneNumberController: phoneNumberController,
+                    emailController: emailAddressController,
+                  ),
+                  NextButton(
+                    isactive: isActive,
+                  ),
+                ],
               ),
-              NextButton(
-                isactive: isActive,
-              ),
-            ],
+            ),
           ),
         ),
       ),

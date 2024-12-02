@@ -4,8 +4,9 @@ import 'package:hive/hive.dart';
 
 class CheckBox extends StatefulWidget {
   final VoidCallback onChaged;
+  final String text;
 
-  const CheckBox({super.key, required this.onChaged});
+  const CheckBox({super.key, required this.onChaged, this.text="Save my details to speed up my next booking process"});
 
   @override
   State<CheckBox> createState() => _CheckBoxState();
@@ -44,12 +45,12 @@ class _CheckBoxState extends State<CheckBox> {
                 });
               },
             ),
-            const SizedBox(
+             SizedBox(
               width: 6,
             ),
             Flexible(
                 child: Text(
-              "Save my details to speed up my next booking process",
+              widget.text,
               style:
                   GoogleFonts.poppins(color: Color(0xFF2C2C2E), fontSize: 12),
               softWrap: true,

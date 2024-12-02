@@ -75,7 +75,7 @@ class _PictureUploaderState extends State<PictureUploader> {
             icon: Icon(Icons.camera_alt),
             onPressed: () {
               if (box.get("shouldRedirect")!=true){
-                Navigator.pushReplacement(
+                Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => MyWebImagePickerApp()),
                 );
@@ -89,7 +89,7 @@ class _PictureUploaderState extends State<PictureUploader> {
                   icon: Icon(Icons.add),
                   onPressed: () {
                     if (box.get("shouldRedirect")!=true){
-                      Navigator.pushReplacement(
+                      Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => MyWebImagePickerApp()),
                       );
@@ -109,7 +109,7 @@ class _PictureUploaderState extends State<PictureUploader> {
         ),
         onTap: () {
           if (box.get("shouldRedirect")!=true){
-            Navigator.pushReplacement(
+            Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => MyWebImagePickerApp()),
                 );

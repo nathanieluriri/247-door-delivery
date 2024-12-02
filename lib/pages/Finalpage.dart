@@ -2,9 +2,10 @@ import 'dart:async';
 
 import 'package:_247_door_delivery/Apis/Distancecalculator.dart';
 import 'package:_247_door_delivery/Db/Db.dart';
+import 'package:_247_door_delivery/widgets/Address%20button%20widget.dart';
 import 'package:_247_door_delivery/widgets/Timepickerwidget.dart';
 import 'package:_247_door_delivery/widgets/scheduleNowButton.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
@@ -32,11 +33,11 @@ class _FinalDetailsState extends State<FinalDetails> {
   var pickupbox = Hive.box("PickupDetails");
   var dropoffbox = Hive.box("DropoffDetails");
   var customerinfobox = Hive.box('CustomerInfo');
-  final FirebaseDb db = FirebaseDb();
+  final MongoDb db = MongoDb();
   double? Distance;
   bool? shouldRedirect;
   Timer? _timerforfinalPage;
-
+  bool ischecked = false;
 
   bool isDateALessThanB(String dateA, String dateB) {
     bool result = false;
@@ -59,6 +60,7 @@ class _FinalDetailsState extends State<FinalDetails> {
     }
     return result;
   }
+
   @override
   void dispose() {
     // TODO: implement dispose
@@ -70,22 +72,16 @@ class _FinalDetailsState extends State<FinalDetails> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _timerforfinalPage = Timer(const Duration(milliseconds: 500), (){
+    _timerforfinalPage = Timer(const Duration(milliseconds: 500), () {
       dynamic box4 = Hive.box("CameraDetails");
-      if (box4.get("shouldRedirect") ==true) {
+      if (box4.get("shouldRedirect") == true) {
         setState(() {
-
           shouldRedirect = box4.get("shouldRedirect");
           print("new shouldRedirect = $shouldRedirect");
         });
+      } else {
+        setState(() {});
       }
-
-      else{
-        setState(() {
-
-        });
-      }
-
     });
 
     setDistance();
@@ -103,7 +99,7 @@ class _FinalDetailsState extends State<FinalDetails> {
     _DropoffTimeController.addListener(() {
       setState(() {});
     });
-    photoController.addListener((){
+    photoController.addListener(() {
       setState(() {
         dynamic box4 = Hive.box("CameraDetails");
         setActive();
@@ -113,9 +109,6 @@ class _FinalDetailsState extends State<FinalDetails> {
 
   @override
   Widget build(BuildContext context) {
-
-
-
     setActive();
     return MaterialApp(
       home: Scaffold(
@@ -134,104 +127,155 @@ class _FinalDetailsState extends State<FinalDetails> {
         body: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 600),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                 PictureUploader(
-                   clearF: (){
-                     dynamic cbox = Hive.box("CameraDetails");
-                     setState(() {
-                       shouldRedirect = cbox.get("shouldRedirect");
-                     });
-                     _PickupdateController.clear();
-                     _DropoffTimeController.clear();
-                     _PickupTimeController.clear();
-                     _DropoffdateController.clear();
-                   },
-
-                  hint: "Take A Picture Of The Package", photocontroller: photoController,
-                ),
-                DateWidget(
-                  hint: 'Select a Pickup Date',
-                  dateTimeController: _PickupdateController,
-                  lastDate: _DropoffdateController.text.isNotEmpty
-                      ? DateTime.tryParse(_DropoffdateController.text) ??
-                          DateTime(2025)
-                      : DateTime(2100),
-                ),
-                DateWidget(
-                  hint: 'Select a Drop Date',
-                  dateTimeController: _DropoffdateController,
-                  lastDate: DateTime(2100),
-                ),
-                TimeWidget(
-                  hint: "Select a Pick up Time",
-                  dateTimeController: _PickupTimeController,
-                ),
-                TimeWidget(
-                  hint: "Select a Drop Off Time",
-                  dateTimeController: _DropoffTimeController,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    ScheduleNowButton(
-                        onPressed: () {
-                          DateTime now = DateTime.now();
-                          DateTime threehourslater =
-                              now.add(Duration(hours: 3));
-                          String getCurrentTime = "${now.hour}:${now.minute}";
-
-                          String currentDate =
-                              "${now.year}-${now.month}-${now.day}";
-                          String getLater =
-                              "${threehourslater.hour}:${threehourslater.minute}";
-
-                          _PickupdateController.text = currentDate;
-                          _DropoffdateController.text = currentDate;
-
-                          _PickupTimeController.text = getCurrentTime;
-                          _DropoffTimeController.text = getLater;
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      AddressUploader(
+                        onTap: () {
+                          setActive();
+                          setState(() {});
                         },
-                        active: true),
-                    PayNowButton(
-                      onPressed: () async {
-                        String name = customerinfobox.get('name');
-                        String phoneNumber = customerinfobox.get("phoneNumber");
-                        String email = customerinfobox
-                            .get("email")
-                            .toString()
-                            .toLowerCase();
-                        Map<String, dynamic> pickUpDetails =
-                            pickupbox.toMap().cast<String, dynamic>();
+                      ),
+                      PictureUploader(
+                        clearF: () {
+                          dynamic cbox = Hive.box("CameraDetails");
+                          setState(() {
+                            shouldRedirect = cbox.get("shouldRedirect");
+                          });
+                          _PickupdateController.clear();
+                          _DropoffTimeController.clear();
+                          _PickupTimeController.clear();
+                          _DropoffdateController.clear();
+                        },
+                        hint: "Take A Picture Of The Package",
+                        photocontroller: photoController,
+                      ),
+                      DateWidget(
+                        hint: 'Select a Pickup Date',
+                        dateTimeController: _PickupdateController,
+                        lastDate: _DropoffdateController.text.isNotEmpty
+                            ? DateTime.tryParse(_DropoffdateController.text) ??
+                                DateTime(2025)
+                            : DateTime(2100),
+                      ),
+                      DateWidget(
+                        hint: 'Select a Drop Date',
+                        dateTimeController: _DropoffdateController,
+                        lastDate: DateTime(2100),
+                      ),
+                      TimeWidget(
+                        hint: "Select a Pick up Time",
+                        dateTimeController: _PickupTimeController,
+                      ),
+                      TimeWidget(
+                        hint: "Select a Drop Off Time",
+                        dateTimeController: _DropoffTimeController,
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      ischecked
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                ScheduleNowButton(
+                                    onPressed: () {
+                                      DateTime now = DateTime.now();
+                                      DateTime threehourslater =
+                                          now.add(Duration(hours: 3));
+                                      String getCurrentTime =
+                                          "${now.hour}:${now.minute}";
 
-                        Map<String, dynamic> dropOffDetails =
-                            dropoffbox.toMap().cast<String, dynamic>();
-                        Map<String, dynamic> schedule = {
-                          'pickUpTime': _PickupTimeController.text,
-                          'pickUpDate': _PickupdateController.text,
-                          'dropOffTime': _DropoffTimeController.text,
-                          'dropOffDate': _DropoffdateController.text,
-                        };
-                        var cbox = Hive.box("CameraDetails");
-                        db.addUser(
-                            name: name.toLowerCase(),
-                            phoneNumber: phoneNumber,
-                            email: email.toLowerCase(),
-                            pickUpDetails: pickUpDetails,
-                            dropOffDetails: dropOffDetails,
-                            schedule: schedule,
-                            imageid: cbox.get("ImageId")
-                        );
+                                      String currentDate =
+                                          "${now.year}-${now.month}-${now.day}";
+                                      String getLater =
+                                          "${threehourslater.hour}:${threehourslater.minute}";
 
-                        await LaunchUrl(distance: Distance);
+                                      _PickupdateController.text = currentDate;
+                                      _DropoffdateController.text = currentDate;
 
-                      },
-                      active: active,
-                    ),
-                  ],
-                )
-              ],
+                                      _PickupTimeController.text =
+                                          getCurrentTime;
+                                      _DropoffTimeController.text = getLater;
+                                    },
+                                    active: true),
+                                PayNowButton(
+                                  onPressed: () async {
+                                    String name = customerinfobox.get('name');
+                                    String phoneNumber =
+                                        customerinfobox.get("phoneNumber");
+                                    String email = customerinfobox
+                                        .get("email")
+                                        .toString()
+                                        .toLowerCase();
+                                    Map<String, dynamic> pickUpDetails =
+                                        pickupbox
+                                            .toMap()
+                                            .cast<String, dynamic>();
+
+                                    Map<String, dynamic> dropOffDetails =
+                                        dropoffbox
+                                            .toMap()
+                                            .cast<String, dynamic>();
+                                    Map<String, dynamic> schedule = {
+                                      'pickUpTime': _PickupTimeController.text,
+                                      'pickUpDate': _PickupdateController.text,
+                                      'dropOffTime':
+                                          _DropoffTimeController.text,
+                                      'dropOffDate':
+                                          _DropoffdateController.text,
+                                    };
+                                    var cbox = Hive.box("CameraDetails");
+                                    var aBox = Hive.box("AddressDetails");
+                                    db.addUser(
+                                        name: name.toLowerCase(),
+                                        phoneNumber: phoneNumber,
+                                        email: email.toLowerCase(),
+                                        pickUpDetails: pickUpDetails,
+                                        dropOffDetails: dropOffDetails,
+                                        schedule: schedule,
+                                        imageid: cbox.get("ImageId"),
+                                        additional_info:
+                                            'Pick-up Street Name: ${aBox.get("Pick Up Street Name")}, Pick-up Building Name: ${aBox.get("Pick Up Building Name")} , Pick-up House Number: ${aBox.get("Pick Up House Number")} , Information Regarding Dog\'s on Pick Up: ${aBox.get("Information Regarding Dog Pick Up")} , Drop Off Street Name: ${aBox.get("Drop Off Street Name")} Drop Off Building Name : ${aBox.get("Drop Off Building Name")} , Drop Off House Number: ${aBox.get("Drop Off House Number")}  Information Regarding Dog\'s on Drop Off: ${aBox.get("Information Regarding Dog Drop Off")} ');
+
+                                    await LaunchUrl(distance: Distance);
+                                  },
+                                  active: active,
+                                ),
+                              ],
+                            )
+                          : Container(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Checkbox(
+                            activeColor: Colors.blue,
+                            value: ischecked,
+                            onChanged: (bool? newValue) {
+                              setState(() {
+                                ischecked = newValue ?? false;
+                              });
+                            },
+                          ),
+                          const Flexible(
+                            child: const Text(
+                              "I confirm that all information provided is accurate, and I agree to the Terms and Conditions of 247 Door Delivery.",
+                              softWrap: true,
+                              textAlign: TextAlign.center,
+                            ),
+                          )
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -264,7 +308,7 @@ class _FinalDetailsState extends State<FinalDetails> {
             dropOffDetails,
             _PickupdateController.text,
             _DropoffdateController.text,
-            _DropoffTimeController.text,
+            _PickupTimeController.text,
             _DropoffTimeController.text);
         await launchUrl(Uri.parse('$paymentLink?prefilled_email=$parsedEmail'),
             webOnlyWindowName: '_blank');
@@ -280,7 +324,7 @@ class _FinalDetailsState extends State<FinalDetails> {
             dropOffDetails,
             _PickupdateController.text,
             _DropoffdateController.text,
-            _DropoffTimeController.text,
+            _PickupTimeController.text,
             _DropoffTimeController.text);
         await launchUrl(Uri.parse('$paymentLink?prefilled_email=$parsedEmail'),
             webOnlyWindowName: '_blank');
@@ -289,17 +333,30 @@ class _FinalDetailsState extends State<FinalDetails> {
   }
 
   void setActive() {
-    print("shouldRedirect $shouldRedirect");
+    var submitted = false;
+    var addressBox = Hive.box("AddressDetails");
+    var cameraBox = Hive.box("CameraDetails");
+    shouldRedirect = cameraBox.get("shouldRedirect") ?? false;
+    setState(() {
+      var addressBox = Hive.box("AddressDetails");
+      print("Address box has been submitted ${addressBox.get("submitted")}");
+      submitted = addressBox.get("submitted") ?? false;
+    });
+
     if ((_PickupTimeController.text.isNotEmpty) &&
         (_PickupdateController.text.isNotEmpty) &&
         (_DropoffdateController.text.isNotEmpty) &&
         (_DropoffTimeController.text.isNotEmpty) &&
-        (shouldRedirect ==true))  {
+        (submitted == true) &&
+        (shouldRedirect == true)) {
       setState(() {
         active = true;
       });
     } else {
+      print(
+          '${_PickupTimeController.text.isNotEmpty} ${_PickupdateController.text.isNotEmpty} ${_DropoffdateController.text.isNotEmpty} ${_DropoffdateController.text.isNotEmpty} ${_DropoffTimeController.text.isNotEmpty} ${submitted == true} ${shouldRedirect == true} ${addressBox.get("submitted")}  ');
       active = false;
+      setState(() {});
     }
   }
 

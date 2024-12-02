@@ -2,8 +2,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-class FirebaseDb{
-  CollectionReference users = FirebaseFirestore.instance.collection('users');
+class MongoDb{
+  String sanitizeInput(String input) {
+    // Escape special characters to prevent injection
+    return input
+        .replaceAll('\$', '\\\$')  // Escape dollar signs
+        .replaceAll('\'', '\\\'')  // Escape single quotes
+        .replaceAll('\"', '\\\"')  // Escape double quotes
+        .replaceAll('\n', '\\n')    // Escape new lines
+        .replaceAll('\r', '\\r')    // Escape carriage returns
+        .replaceAll('`', '\\`');     // Escape backticks
+  }
+
 
 
 
@@ -13,6 +23,7 @@ class FirebaseDb{
     required String imageid,
     required String phoneNumber,
     required String email,
+    required String additional_info,
     required Map<String, dynamic> pickUpDetails,
     required Map<String, dynamic> dropOffDetails,
     required Map<String, dynamic> schedule,
@@ -22,13 +33,14 @@ class FirebaseDb{
 int image_id = int.parse(imageid);
     // Create the user data to be sent in the request body
     final userData = {
-      "name": name,
-      "phone_number": phoneNumber,
-      "email": email,
+      "name": sanitizeInput(name),
+      "phone_number": sanitizeInput(phoneNumber),
+      "email": sanitizeInput(email),
       "pick_up_details": pickUpDetails,  // Use Map directly
       "drop_off_details": dropOffDetails, // Use Map directly
       "schedule": schedule, // Use Map directly
-      "image_id": image_id
+      "image_id": image_id,
+      "additional_info": sanitizeInput(additional_info)
     };
 
     try {

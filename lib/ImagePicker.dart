@@ -87,9 +87,8 @@ class _MyWebImagePickerAppState extends State<MyWebImagePickerApp> {
         ),
         leading: IconButton(
           onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => FinalDetails()),
+            Navigator.pop(
+              context,"submitted"
             );
           },
           icon: const Icon(Icons.arrow_back),
@@ -185,9 +184,9 @@ class _CircularProgressLoaderState extends State<CircularProgressLoader> {
         if (_progress >= 1.0) {
           _timer?.cancel();
 
-          Navigator.pushReplacement(
+          Navigator.pop(
             context,
-            MaterialPageRoute(builder: (context) => FinalDetails()),
+            "submitted"
           );
         }
       });
